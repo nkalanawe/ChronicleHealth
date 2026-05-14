@@ -398,6 +398,7 @@ footer{background:var(--dark);padding:52px 80px;
   <h2>One app.<br>Four superpowers.</h2>
   <p>Join the waitlist for free early access when Chronicle Health launches.</p>
   <form class="email-form" onsubmit="signup(event)">
+  <div style="position:absolute;left:-5000px;" aria-hidden="true"><input type="text" name="b_fa4c1bd9bef32ca7cc6ed1aa4_13486b39fb" tabindex="-1" value=""/></div>
     <input type="email" placeholder="your@email.com" required autocomplete="email"/>
     <button type="submit" class="btn-cta">Get Early Access</button>
   </form>
@@ -434,8 +435,39 @@ function acc(item){
 }
 function signup(e){
   e.preventDefault();
-  try{var l=JSON.parse(localStorage.getItem('ch')||'[]');l.push(e.target.querySelector('input').value);localStorage.setItem('ch',JSON.stringify(l));}catch(x){}
-  e.target.style.display='none';document.getElementById('ok').classList.add('show');
+  var form=e.target;
+  var email=form.querySelector('input[type="email"]').value;
+  var btn=form.querySelector('button');
+  btn.textContent='Joining...';
+  btn.disabled=true;
+  var cb='mc_cb_'+Date.now();
+  var base='https://github.us9.list-manage.com/subscribe/post-json';
+  var params='?u=fa4c1bd9bef32ca7cc6ed1aa4&id=13486b39fb&f_id=00aac2e1f0';
+  var url=base+params+'&EMAIL='+encodeURIComponent(email)+'&b_fa4c1bd9bef32ca7cc6ed1aa4_13486b39fb=&c='+cb;
+  window[cb]=function(data){
+    try{document.head.removeChild(sc);}catch(x){}
+    delete window[cb];
+    if(data&&data.result==='success'){
+      form.style.display='none';
+      document.getElementById('ok').classList.add('show');
+    } else {
+      var msg=(data&&data.msg)||'Something went wrong. Please try again.';
+      // strip Mailchimp HTML tags from error msg
+      msg=msg.replace(/<[^>]+>/g,'');
+      btn.textContent='Get Early Access';
+      btn.disabled=false;
+      var err=form.querySelector('.mc-err');
+      if(!err){err=document.createElement('p');err.className='mc-err';err.style.cssText='color:#e53e3e;font-size:13px;margin-top:8px;text-align:center;';form.appendChild(err);}
+      err.textContent=msg;
+    }
+  };
+  var sc=document.createElement('script');
+  sc.src=url;
+  sc.onerror=function(){
+    btn.textContent='Get Early Access';btn.disabled=false;
+    delete window[cb];
+  };
+  document.head.appendChild(sc);
 }
 var chips=document.querySelectorAll('.mchip');
 var io2=new IntersectionObserver(function(entries){
